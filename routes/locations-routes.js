@@ -41,20 +41,24 @@ router.get("/:lid", (req, res, next) => {
   });
   // console.log("GET request locations");
   if (!location) {
-    return res.status(404).json({ message: "No location found for user" });
+    const error = new Error("No location found for user");
+    error.code = 404;
+    return next(error);
   }
   res.json({ location });
 });
 
 router.get("/user/:uid", (req, res, next) => {
-  const userId = req.params.userid;
+  const userId = req.params.uid;
 
   const location = MOCK_LOCATIONS.find((l) => {
     return l.user === userId;
   });
 
   if (!location) {
-    return res.status(404).json({ message: "No location found for user" });
+    const error = new Error("No location found for user");
+    error.code = 404;
+    return next(error);
   }
 
   res.json({ location });
@@ -63,6 +67,5 @@ router.get("/user/:uid", (req, res, next) => {
 // get the user id and find the location of the user that has that id
 
 // no location found returns 200 ok {} ... => create err => 404 (no data available)
-// TODO: throw error handler if time
 
 module.exports = router;
