@@ -1,6 +1,6 @@
 const uuid = require("uuid").v4;
 
-const MOCK_LOCATIONS = [
+let MOCK_LOCATIONS = [
   {
     id: "l1",
     title: "The Brooklyn Mirage",
@@ -95,7 +95,11 @@ const updateLocation = (req, res, next) => {
   res.status(200).json({ location: updatedLocation });
 };
 
-const deleteLocation = (req, res, next) => {};
+const deleteLocation = (req, res, next) => {
+  const locationId = req.params.lid;
+  MOCK_LOCATIONS = MOCK_LOCATIONS.filter((l) => l.id !== locationId);
+  res.status(200).json({ message: "Location has been deleted" });
+};
 
 exports.getLocationById = getLocationById;
 exports.getLocationByUserId = getLocationByUserId;
