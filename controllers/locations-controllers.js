@@ -1,3 +1,5 @@
+const uuid = require("uuid").v4;
+
 const MOCK_LOCATIONS = [
   {
     id: "l1",
@@ -60,5 +62,23 @@ const getLocationByUserId = (req, res, next) => {
   res.json({ location });
 };
 
+const newLocation = (req, res, next) => {
+  const { title, description, coordinates, address, userId } = req.body;
+
+  const createdLocation = {
+    id: uuid(),
+    title,
+    description,
+    location: coordinates,
+    address,
+    userId,
+  };
+
+  MOCK_LOCATIONS.push(createdLocation);
+
+  res.status(201).json({ location: createdLocation });
+};
+
 exports.getLocationById = getLocationById;
 exports.getLocationByUserId = getLocationByUserId;
+exports.newLocation = newLocation;

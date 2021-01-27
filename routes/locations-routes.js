@@ -8,6 +8,8 @@ router.get("/:lid", locationsControllers.getLocationById);
 
 router.get("/user/:uid", locationsControllers.getLocationByUserId);
 
+router.post("/", locationsControllers.newLocation);
+
 // get the user id and find the location of the user that has that id
 
 // no location found returns 200 ok {} ... => create err => 404 (no data available)
