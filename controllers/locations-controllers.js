@@ -79,6 +79,26 @@ const newLocation = (req, res, next) => {
   res.status(201).json({ location: createdLocation });
 };
 
+const updateLocation = (req, res, next) => {
+  const { title, description } = req.body;
+  const locationId = req.params.lid;
+
+  const updatedLocation = {
+    ...MOCK_LOCATIONS.find((l) => l.id === locationId),
+  };
+  const locationIndex = MOCK_LOCATIONS.findIndex((l) => l.id === locationId);
+  updatedLocation.title = title;
+  updatedLocation.description = description;
+
+  MOCK_LOCATIONS[locationIndex] = updatedLocation;
+
+  res.status(200).json({ location: updatedLocation });
+};
+
+const deleteLocation = (req, res, next) => {};
+
 exports.getLocationById = getLocationById;
 exports.getLocationByUserId = getLocationByUserId;
 exports.newLocation = newLocation;
+exports.updateLocation = updateLocation;
+exports.deleteLocation = deleteLocation;
