@@ -9,6 +9,11 @@ app.use(bodyParser.json());
 
 app.use("/api/locations", locationsRoutes);
 
+app.use((req, res, next) => {
+  res.status(404).send("This route cannot be found");
+  return next(error);
+});
+
 app.use((error, req, res, next) => {
   if (res.headerSent) {
     return next(error);
