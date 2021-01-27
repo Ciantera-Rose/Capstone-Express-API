@@ -46,20 +46,20 @@ const getLocationById = (req, res, next) => {
   res.json({ location });
 };
 
-const getLocationByUserId = (req, res, next) => {
+const getLocationsByUserId = (req, res, next) => {
   const userId = req.params.uid;
 
-  const location = MOCK_LOCATIONS.find((l) => {
+  const locations = MOCK_LOCATIONS.filter((l) => {
     return l.userId === userId;
   });
 
-  if (!location) {
-    const error = new Error("No location found for user");
+  if (!locations || locations.length === 0) {
+    const error = new Error("No locations found for this user");
     error.code = 404;
     return next(error);
   }
 
-  res.json({ location });
+  res.json({ locations });
 };
 
 const newLocation = (req, res, next) => {
@@ -102,7 +102,7 @@ const deleteLocation = (req, res, next) => {
 };
 
 exports.getLocationById = getLocationById;
-exports.getLocationByUserId = getLocationByUserId;
+exports.getLocationsByUserId = getLocationsByUserId;
 exports.newLocation = newLocation;
 exports.updateLocation = updateLocation;
 exports.deleteLocation = deleteLocation;

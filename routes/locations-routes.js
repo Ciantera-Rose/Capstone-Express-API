@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("/:lid", locationsControllers.getLocationById);
 
-router.get("/user/:uid", locationsControllers.getLocationByUserId);
+router.get("/user/:uid", locationsControllers.getLocationsByUserId);
 
 router.post("/", locationsControllers.newLocation);
 
