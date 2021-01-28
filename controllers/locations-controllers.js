@@ -111,6 +111,11 @@ const updateLocation = (req, res, next) => {
 
 const deleteLocation = (req, res, next) => {
   const locationId = req.params.lid;
+  const error = new Error("No location found for that user", 404);
+  if (!MOCK_LOCATIONS.find((l) => l.id === locationId)) {
+    error.code = 404;
+    return next(error);
+  }
   MOCK_LOCATIONS = MOCK_LOCATIONS.filter((l) => l.id !== locationId);
   res.status(200).json({ message: "Location has been deleted" });
 };
