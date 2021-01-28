@@ -1,14 +1,23 @@
-const express = require("express");
+const { Router } = require("express");
+const { check } = require("express-validator");
 
 const locationsControllers = require("../controllers/locations-controllers");
 
-const router = express.Router();
+const router = Router();
 
 router.get("/:lid", locationsControllers.getLocationById);
 
 router.get("/user/:uid", locationsControllers.getLocationsByUserId);
 
-router.post("/", locationsControllers.newLocation);
+router.post(
+  "/",
+  [
+    check("title").not().isEmpty(),
+    check("description").isLength({ min: 5 }),
+    check("address").not().isEmpty(),
+  ],
+  locationsControllers.newLocation
+);
 
 router.patch("/:lid", locationsControllers.updateLocation);
 
@@ -18,4 +27,5 @@ router.delete("/:lid", locationsControllers.deleteLocation);
 
 // no location found returns 200 ok {} ... => create err => 404 (no data available)
 
+// express validator for valitation middeware requirements, check title is not empty, left to right
 module.exports = router;

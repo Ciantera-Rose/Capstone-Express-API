@@ -1,4 +1,5 @@
 const uuid = require("uuid").v4;
+const { validationResult } = require("express-validator");
 
 let MOCK_LOCATIONS = [
   {
@@ -63,6 +64,13 @@ const getLocationsByUserId = (req, res, next) => {
 };
 
 const newLocation = (req, res, next) => {
+  const errors = validationResult(req);
+  const errorMessage = "Invalid input, please check you data";
+  if (!errors.isEmpty()) {
+    console.log(errors);
+    return res.status(422).json({ errors: errorMessage });
+  }
+
   const { title, description, coordinates, address, userId } = req.body;
 
   const createdLocation = {
