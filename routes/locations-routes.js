@@ -19,7 +19,11 @@ router.post(
   locationsControllers.newLocation
 );
 
-router.patch("/:lid", locationsControllers.updateLocation);
+router.patch(
+  "/:lid",
+  [check("title").not().isEmpty(), check("description").isLength({ min: 5 })],
+  locationsControllers.updateLocation
+);
 
 router.delete("/:lid", locationsControllers.deleteLocation);
 

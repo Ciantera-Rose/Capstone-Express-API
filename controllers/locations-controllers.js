@@ -88,6 +88,12 @@ const newLocation = (req, res, next) => {
 };
 
 const updateLocation = (req, res, next) => {
+  const errors = validationResult(req);
+  const errorMessage = "Invalid input, please check you data";
+  if (!errors.isEmpty()) {
+    console.log(errors);
+    return res.status(422).json({ errors: errorMessage });
+  }
   const { title, description } = req.body;
   const locationId = req.params.lid;
 
