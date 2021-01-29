@@ -32,31 +32,50 @@ let MOCK_LOCATIONS = [
   },
 ];
 
-const getLocationById = (req, res, next) => {
+const getLocationById = async (req, res, next) => {
   const locationId = req.params.lid;
 
-  const location = MOCK_LOCATIONS.find((l) => {
-    return l.id === locationId;
-  });
+  let location;
+  try {
+    location = await LocationModel.findById(locationId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not find that location.",
+      500
+    );
+    return next(error);
+  }
 
   if (!location) {
-    throw new HttpError("No location found for user", 404);
+    const error = new HttpError("No location found for user", 404);
+    return next(error);
   }
-  res.json({ location });
+  res.json({ location: location.toObject({ getters: true }) });
 };
 
-const getLocationsByUserId = (req, res, next) => {
+const getLocationsByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  const locations = MOCK_LOCATIONS.filter((l) => {
-    return l.userId === userId;
-  });
-
-  if (!locations || locations.length === 0) {
-    new HttpError("No locations found for this user.", 404);
+  let locations;
+  try {
+    locations = await LocationModel.find({ userId: userId });
+  } catch (err) {
+    const error = new HttpError(
+      "Failed to retrive locations, please try again.",
+      500
+    );
+    return next(error);
   }
 
-  res.json({ locations });
+  if (!locations || locations.length === 0) {
+    return next(new HttpError("No locations found for this user.", 404));
+  }
+
+  res.json({
+    locations: locations.map((location) =>
+      location.toObject({ getters: true })
+    ),
+  });
 };
 
 const newLocation = async (req, res, next) => {
