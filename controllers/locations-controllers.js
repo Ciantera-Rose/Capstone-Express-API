@@ -3,6 +3,7 @@ const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 const getCoordinates = require("../utility/location");
+const LocationModel = require("../models/location-model");
 
 let MOCK_LOCATIONS = [
   {
@@ -72,17 +73,26 @@ const newLocation = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-
-  const createdLocation = {
-    id: uuid(),
+  // Match schema
+  const createdLocation = new LocationModel({
     title,
     description,
-    location: coordinates,
     address,
+    location: coordinates,
+    image:
+      "https://images.squarespace-cdn.com/content/v1/597a8b3920099e0bff668154/1538683215516-2O43UPWH0BHWLTGPF6DE/ke17ZwdGBToddI8pDm48kEZk6F5PbQiC1r1IZ2IoUeR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UfvbNRGeuxQFwQ8dTRP7_IjByFLq5tUM4qN8xXPNmdulg0wU7-gbCzcJVB_xdsPuSg/image-asset.jpeg",
     userId,
-  };
+  });
 
-  MOCK_LOCATIONS.push(createdLocation);
+  try {
+    await createdLocation.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Failed to create new location, please try again.",
+      500
+    );
+    return next(error);
+  }
 
   res.status(201).json({ location: createdLocation });
 };

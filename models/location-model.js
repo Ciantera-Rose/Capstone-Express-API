@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-const locationSchema = new Schema({
+const locationModelSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
@@ -13,4 +13,4 @@ const locationSchema = new Schema({
   userId: { type: String, required: true },
 });
 
-module.exports = mongoose.model("Location", locationSchema);
+module.exports = mongoose.model("Location-model", locationModelSchema);
