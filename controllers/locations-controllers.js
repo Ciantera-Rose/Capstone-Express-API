@@ -151,13 +151,29 @@ const updateLocation = async (req, res, next) => {
   res.status(200).json({ location: location.toObject({ getters: true }) });
 };
 
-const deleteLocation = (req, res, next) => {
+const deleteLocation = async (req, res, next) => {
   const locationId = req.params.lid;
 
-  if (!MOCK_LOCATIONS.find((l) => l.id === locationId)) {
-    throw new HttpError("No location found for that user", 404);
+  let location;
+  try {
+    location = await LocationModel.findById(locationId);
+  } catch (err) {
+    const error = new HttpError(
+      "Unable to delete location, please try again.",
+      500
+    );
+    return next(error);
   }
-  MOCK_LOCATIONS = MOCK_LOCATIONS.filter((l) => l.id !== locationId);
+
+  try {
+    await location.remove();
+  } catch (err) {
+    const error = new HttpError(
+      "Unable to delete location, please try again.",
+      500
+    );
+    return next(error);
+  }
   res.status(200).json({ message: "Location has been deleted" });
 };
 
