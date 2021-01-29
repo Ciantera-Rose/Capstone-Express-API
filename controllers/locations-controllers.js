@@ -1,7 +1,7 @@
 const uuid = require("uuid").v4;
 const { validationResult } = require("express-validator");
 
-const HttpError = require("../errors/http-error");
+const HttpError = require("../models/http-error");
 const getCoordinates = require("../utility/location");
 
 let MOCK_LOCATIONS = [

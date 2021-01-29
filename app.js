@@ -1,9 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
 const locationsRoutes = require("./routes/locations-routes");
 const usersRoutes = require("./routes/users-routes");
-const HttpError = require("./errors/http-error");
+const HttpError = require("./models/http-error");
 
 const app = express();
 
@@ -25,7 +26,16 @@ app.use((error, req, res, next) => {
   res.json({ message: error.message || "An unknown error occured" });
 });
 
-app.listen(5000);
+mongoose
+  .connect(
+    "mongodb+srv://ciantera_j_rose:jMde3TbqMBh2h28@capstone.xipv0.mongodb.net/Capstone?retryWrites=true&w=majority"
+  )
+  .then(() => {
+    app.listen(5000);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 // /api/locations/...
 // Retrieve list of all locations for a given user id
