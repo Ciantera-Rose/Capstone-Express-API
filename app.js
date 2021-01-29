@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 
 const locationsRoutes = require("./routes/locations-routes");
 const usersRoutes = require("./routes/users-routes");
+const HttpError = require("./errors/http-error");
 
 const app = express();
 
@@ -12,8 +13,8 @@ app.use("/api/locations", locationsRoutes);
 app.use("/api/users", usersRoutes);
 
 app.use((req, res, next) => {
-  res.status(404).send("This route cannot be found");
-  return next(error);
+  const error = new HttpError("This route cannot be found", 404);
+  throw error;
 });
 
 app.use((error, req, res, next) => {

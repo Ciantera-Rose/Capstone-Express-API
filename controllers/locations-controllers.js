@@ -1,19 +1,20 @@
 const uuid = require("uuid").v4;
 const { validationResult } = require("express-validator");
 
+const HttpError = require("../errors/http-error");
+const getCoordinates = require("../utility/location");
+
 let MOCK_LOCATIONS = [
   {
     id: "l1",
     title: "The Brooklyn Mirage",
     description:
       "The Brooklyn Mirage is a breathtaking open-air sanctuary in the heart of the Avant Gardner complex.",
-    imageUrl:
-      "https://images.squarespace-cdn.com/content/v1/597a8b3920099e0bff668154/1538683215516-2O43UPWH0BHWLTGPF6DE/ke17ZwdGBToddI8pDm48kEZk6F5PbQiC1r1IZ2IoUeR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UfvbNRGeuxQFwQ8dTRP7_IjByFLq5tUM4qN8xXPNmdulg0wU7-gbCzcJVB_xdsPuSg/image-asset.jpeg",
-    address: "140 Stewart Ave, Brooklyn, NY 11237",
     location: {
       lat: 40.7108803,
       lng: -73.9257375,
     },
+    address: "140 Stewart Ave, Brooklyn, NY 11237",
     userId: "u1",
   },
   {
@@ -21,13 +22,11 @@ let MOCK_LOCATIONS = [
     title: "Output",
     description:
       "North Brooklyn's premier electronic and dance music venue that offers a more low-key experience than its bottle-service-heavy competitors, but still delivers heavy-hitting performers",
-    imageUrl:
-      "https://media-cdn.tripadvisor.com/media/photo-s/06/25/b8/2d/output.jpg",
-    address: "74 Wythe Ave, Brooklyn, NY 11249",
     location: {
       lat: 40.7222917,
       lng: -73.9578222,
     },
+    address: "74 Wythe Ave, Brooklyn, NY 11249",
     userId: "u2",
   },
 ];
@@ -40,9 +39,7 @@ const getLocationById = (req, res, next) => {
   });
 
   if (!location) {
-    const error = new Error("No location found for user");
-    error.code = 404;
-    return next(error);
+    throw new HttpError("No location found for user", 404);
   }
   res.json({ location });
 };
@@ -55,23 +52,26 @@ const getLocationsByUserId = (req, res, next) => {
   });
 
   if (!locations || locations.length === 0) {
-    const error = new Error("No locations found for this user");
-    error.code = 404;
-    return next(error);
+    new HttpError("No locations found for this user.", 404);
   }
 
   res.json({ locations });
 };
 
-const newLocation = (req, res, next) => {
+const newLocation = async (req, res, next) => {
   const errors = validationResult(req);
-  const errorMessage = "Invalid input, please check you data";
   if (!errors.isEmpty()) {
-    console.log(errors);
-    return res.status(422).json({ errors: errorMessage });
+    return next(new HttpError("Invalid input, please check you data.", 422));
   }
 
-  const { title, description, coordinates, address, userId } = req.body;
+  const { title, description, address, userId } = req.body;
+
+  let coordinates;
+  try {
+    coordinates = await getCoordinates(address);
+  } catch (error) {
+    return next(error);
+  }
 
   const createdLocation = {
     id: uuid(),
@@ -89,10 +89,9 @@ const newLocation = (req, res, next) => {
 
 const updateLocation = (req, res, next) => {
   const errors = validationResult(req);
-  const errorMessage = "Invalid input, please check you data";
   if (!errors.isEmpty()) {
     console.log(errors);
-    return res.status(422).json({ errors: errorMessage });
+    throw new HttpError("Invalid input, please check you data", 422);
   }
   const { title, description } = req.body;
   const locationId = req.params.lid;
@@ -111,10 +110,9 @@ const updateLocation = (req, res, next) => {
 
 const deleteLocation = (req, res, next) => {
   const locationId = req.params.lid;
-  const error = new Error("No location found for that user", 404);
+
   if (!MOCK_LOCATIONS.find((l) => l.id === locationId)) {
-    error.code = 404;
-    return next(error);
+    throw new HttpError("No location found for that user", 404);
   }
   MOCK_LOCATIONS = MOCK_LOCATIONS.filter((l) => l.id !== locationId);
   res.status(200).json({ message: "Location has been deleted" });
@@ -125,3 +123,7 @@ exports.getLocationsByUserId = getLocationsByUserId;
 exports.newLocation = newLocation;
 exports.updateLocation = updateLocation;
 exports.deleteLocation = deleteLocation;
+
+// search for address and get back coordinates. Google geocoding api
+// Geocoding request and response (latitude/longitude lookup)
+// Google Maps Platform => Get API again => AIzaSyD0PnlpGVjyjUx6vVTPjJCKU5v3quab7ic
