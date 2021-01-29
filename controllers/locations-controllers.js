@@ -116,7 +116,7 @@ const newLocation = async (req, res, next) => {
   res.status(201).json({ location: createdLocation });
 };
 
-const updateLocation = (req, res, next) => {
+const updateLocation = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors);
@@ -125,16 +125,30 @@ const updateLocation = (req, res, next) => {
   const { title, description } = req.body;
   const locationId = req.params.lid;
 
-  const updatedLocation = {
-    ...MOCK_LOCATIONS.find((l) => l.id === locationId),
-  };
-  const locationIndex = MOCK_LOCATIONS.findIndex((l) => l.id === locationId);
-  updatedLocation.title = title;
-  updatedLocation.description = description;
+  let location;
+  try {
+    location = await LocationModel.findById(locationId);
+  } catch (err) {
+    const error = new HttpError(
+      "Failed to update location, please try again.",
+      500
+    );
+    return next(error);
+  }
 
-  MOCK_LOCATIONS[locationIndex] = updatedLocation;
+  location.title = title;
+  location.description = description;
 
-  res.status(200).json({ location: updatedLocation });
+  try {
+    await location.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Failed to update location, please try again.",
+      500
+    );
+    return next(error);
+  }
+  res.status(200).json({ location: location.toObject({ getters: true }) });
 };
 
 const deleteLocation = (req, res, next) => {
