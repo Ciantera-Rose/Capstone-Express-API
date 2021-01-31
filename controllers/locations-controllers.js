@@ -1,10 +1,11 @@
 const uuid = require("uuid").v4;
 const { validationResult } = require("express-validator");
+const mongoose = require("mongoose");
 
 const HttpError = require("../models/http-error");
 const getCoordinates = require("../utility/location");
 const LocationModel = require("../models/location-model");
-
+const UserModel = require("../models/user-model");
 let MOCK_LOCATIONS = [
   {
     id: "l1",
@@ -103,8 +104,33 @@ const newLocation = async (req, res, next) => {
     userId,
   });
 
+  let user;
   try {
-    await createdLocation.save();
+    user = await UserModel.findById(userId);
+  } catch (err) {
+    const error = new HttpError(
+      "Failed to create new location, please try again.",
+      500
+    );
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError("Unable to locate user with provided id", 404);
+    return next(error);
+  }
+  console.log(user);
+
+  try {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    await createdLocation.save({ session: session });
+    user.locations.push(createdLocation);
+    await user.save({ session: session });
+    await session.commitTransaction();
+
+    // Transactions ... give id to locaiton of user
+    // location will be created and user will be updated
   } catch (err) {
     const error = new HttpError(
       "Failed to create new location, please try again.",
