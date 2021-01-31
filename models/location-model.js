@@ -10,7 +10,7 @@ const locationModelSchema = new Schema({
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
   },
-  userId: { type: String, required: true },
+  userId: { type: mongoose.Types.ObjectId, required: true, ref: "User-model" },
 });
 
 module.exports = mongoose.model("Location-model", locationModelSchema);

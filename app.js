@@ -38,6 +38,10 @@ mongoose
   });
 
 // /api/locations/...
+
+// Retrieve list of all users
+// GET ... /
+
 // Retrieve list of all locations for a given user id
 // GET .../user/:uid
 
@@ -46,6 +50,12 @@ mongoose
 
 // Create a new location
 // POST .../
+
+// Create new user + log user in
+// POST .../signup
+
+// Log user in
+// POST .../login
 
 // Update a location by id
 // PATCH.../:lid
