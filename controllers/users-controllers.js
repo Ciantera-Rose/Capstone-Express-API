@@ -19,8 +19,16 @@ const MOCK_USERS = [
   },
 ];
 
-const getUsers = (req, res, next) => {
-  res.json({ users: MOCK_USERS });
+const getUsers = async (req, res, next) => {
+  let users;
+  try {
+    users = await UserModel.find({}, "-password");
+  } catch (err) {
+    const error = new HttpError("Unable to retreive users.", 500);
+    return next(error);
+  }
+
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
 const signup = async (req, res, next) => {
