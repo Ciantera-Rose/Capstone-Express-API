@@ -65,12 +65,23 @@ const signup = async (req, res, next) => {
   res.status(201).json({ user: newUser.toObject({ getters: true }) });
 };
 
-const login = (req, res, next) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
-  const createdUser = MOCK_USERS.find((u) => u.email === email);
-  if (!createdUser || createdUser.password !== password) {
-    throw new HttpError("Credentials invalid, please try again.", 401);
+  let existingUser;
+  try {
+    existingUser = await UserModel.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError("Login unsuccessful, please try again.", 500);
+    return next(error);
+  }
+
+  if (!existingUser || existingUser.password !== password) {
+    const error = new HttpError(
+      "Invalid credentials, please check and try again.",
+      401
+    );
+    return next(error);
   }
 
   res.json({ message: "Logged In" });
