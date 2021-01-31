@@ -1,4 +1,5 @@
 const uuid = require("uuid").v4;
+const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 
@@ -22,6 +23,11 @@ const getUsers = (req, res, next) => {
 };
 
 const signup = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors);
+    throw new HttpError("Invalid input, please check you data", 422);
+  }
   const { name, email, password } = req.body;
 
   const existingUser = MOCK_USERS.find((u) => u.email === email);
