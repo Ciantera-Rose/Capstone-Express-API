@@ -1,4 +1,3 @@
-const uuid = require("uuid").v4;
 const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 
@@ -6,32 +5,6 @@ const HttpError = require("../models/http-error");
 const getCoordinates = require("../utility/location");
 const LocationModel = require("../models/location-model");
 const UserModel = require("../models/user-model");
-let MOCK_LOCATIONS = [
-  {
-    id: "l1",
-    title: "The Brooklyn Mirage",
-    description:
-      "The Brooklyn Mirage is a breathtaking open-air sanctuary in the heart of the Avant Gardner complex.",
-    location: {
-      lat: 40.7108803,
-      lng: -73.9257375,
-    },
-    address: "140 Stewart Ave, Brooklyn, NY 11237",
-    userId: "u1",
-  },
-  {
-    id: "l2",
-    title: "Output",
-    description:
-      "North Brooklyn's premier electronic and dance music venue that offers a more low-key experience than its bottle-service-heavy competitors, but still delivers heavy-hitting performers",
-    location: {
-      lat: 40.7222917,
-      lng: -73.9578222,
-    },
-    address: "74 Wythe Ave, Brooklyn, NY 11249",
-    userId: "u2",
-  },
-];
 
 const getLocationById = async (req, res, next) => {
   const locationId = req.params.lid;
@@ -93,7 +66,7 @@ const newLocation = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-  // Match schema
+
   const createdLocation = new LocationModel({
     title,
     description,
@@ -181,7 +154,7 @@ const deleteLocation = async (req, res, next) => {
 
   let location;
   try {
-    location = await LocationModel.findById(locationId);
+    location = await LocationModel.findById(locationId).populate("userId");
   } catch (err) {
     const error = new HttpError(
       "Unable to delete location, please try again.",
@@ -190,8 +163,18 @@ const deleteLocation = async (req, res, next) => {
     return next(error);
   }
 
+  if (!location) {
+    const error = new HttpError("No existing location for this user.");
+    return next(error);
+  }
+
   try {
-    await location.remove();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    await location.remove({ session: session });
+    location.userId.locations.pull(location);
+    await location.userId.save({ session: session });
+    await session.commitTransaction();
   } catch (err) {
     const error = new HttpError(
       "Unable to delete location, please try again.",
@@ -207,7 +190,3 @@ exports.getLocationsByUserId = getLocationsByUserId;
 exports.newLocation = newLocation;
 exports.updateLocation = updateLocation;
 exports.deleteLocation = deleteLocation;
-
-// search for address and get back coordinates. Google geocoding api
-// Geocoding request and response (latitude/longitude lookup)
-// Google Maps Platform => Get API again => AIzaSyD0PnlpGVjyjUx6vVTPjJCKU5v3quab7ic

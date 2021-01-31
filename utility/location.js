@@ -27,5 +27,3 @@ async function getCoordinates(address) {
 }
 
 module.exports = getCoordinates;
-
-// Take address and have google API convert to coordinates
