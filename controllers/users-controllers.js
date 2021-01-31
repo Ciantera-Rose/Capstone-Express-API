@@ -1,7 +1,8 @@
-const uuid = require("uuid").v4;
+//const uuid = require("uuid").v4;
 const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
+const UserModel = require("../models/user-model");
 
 const MOCK_USERS = [
   {
@@ -22,29 +23,46 @@ const getUsers = (req, res, next) => {
   res.json({ users: MOCK_USERS });
 };
 
-const signup = (req, res, next) => {
+const signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log(errors);
-    throw new HttpError("Invalid input, please check you data", 422);
+    return next(new HttpError("Invalid input, please check you data", 422));
   }
-  const { name, email, password } = req.body;
+  const { name, email, password, locations } = req.body;
 
-  const existingUser = MOCK_USERS.find((u) => u.email === email);
+  let existingUser;
+  try {
+    existingUser = await UserModel.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError("Signup unsuccessful, please try again.", 500);
+    return next(error);
+  }
+
   if (existingUser) {
-    throw new HttpError("A user with this email already exisits.", 422);
+    const error = new HttpError(
+      "An account for this user already exists, please login.",
+      422
+    );
+    return next(error);
   }
 
-  const newUser = {
-    id: uuid(),
+  const newUser = new UserModel({
     name,
     email,
+    image:
+      "https://images.squarespace-cdn.com/content/v1/597a8b3920099e0bff668154/1538683215516-2O43UPWH0BHWLTGPF6DE/ke17ZwdGBToddI8pDm48kEZk6F5PbQiC1r1IZ2IoUeR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UfvbNRGeuxQFwQ8dTRP7_IjByFLq5tUM4qN8xXPNmdulg0wU7-gbCzcJVB_xdsPuSg/image-asset.jpeg",
     password,
-  };
+    locations,
+  });
+  // Store password encrypted later
+  try {
+    await newUser.save();
+  } catch (err) {
+    const error = new HttpError("Signup failed, please try again.", 500);
+    return next(error);
+  }
 
-  MOCK_USERS.push(newUser);
-
-  res.status(201).json({ user: newUser });
+  res.status(201).json({ user: newUser.toObject({ getters: true }) });
 };
 
 const login = (req, res, next) => {

@@ -119,8 +119,7 @@ const newLocation = async (req, res, next) => {
 const updateLocation = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log(errors);
-    throw new HttpError("Invalid input, please check you data", 422);
+    return next(new HttpError("Invalid input, please check you data", 422));
   }
   const { title, description } = req.body;
   const locationId = req.params.lid;
