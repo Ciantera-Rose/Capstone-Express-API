@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
@@ -7,6 +8,8 @@ const usersRoutes = require("./routes/users-routes");
 const HttpError = require("./models/http-error");
 
 const app = express();
+
+app.use(cors());
 
 app.use(bodyParser.json());
 
@@ -36,34 +39,3 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-
-// /api/locations/...
-
-// Retrieve list of all users
-// GET ... /
-
-// Retrieve list of all locations for a given user id
-// GET .../user/:uid
-
-// Get a specific location by location id
-// GET .../:lid
-
-// Create a new location
-// POST .../
-
-// Create new user + log user in
-// POST .../signup
-
-// Log user in
-// POST .../login
-
-// Update a location by id
-// PATCH.../:lid
-
-// Delete a location by id
-// DELETE.../:lid
-
-// err funct goes after routes middleware, takes 4 params, will execute requests with errors if routes middeware in front has erros
-// if no response sent yet set status, set code on error obj thrown in routes
-// show message in data obj. if mess on err obj or err
-// throw err in routes or next().. (async in this case when db)
