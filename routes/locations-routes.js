@@ -27,9 +27,4 @@ router.patch(
 
 router.delete("/:lid", locationsControllers.deleteLocation);
 
-// get the user id and find the location of the user that has that id
-
-// no location found returns 200 ok {} ... => create err => 404 (no data available)
-
-// express validator for valitation middeware requirements, check title is not empty, left to right
 module.exports = router;

@@ -1,23 +1,7 @@
-//const uuid = require("uuid").v4;
 const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 const UserModel = require("../models/user-model");
-
-const MOCK_USERS = [
-  {
-    id: "u1",
-    name: "Ciantera Rose",
-    email: "fake@gmail.com",
-    password: "testpswd",
-  },
-  {
-    id: "u2",
-    name: "Kevin Castillo",
-    email: "fake@gmail.com",
-    password: "testpswd",
-  },
-];
 
 const getUsers = async (req, res, next) => {
   let users;
@@ -62,7 +46,7 @@ const signup = async (req, res, next) => {
     password,
     locations: [],
   });
-  // Store password encrypted later
+  // TODO: Store password encrypted later
   try {
     await newUser.save();
   } catch (err) {
@@ -92,7 +76,10 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  res.json({ message: "Logged In" });
+  res.json({
+    message: "Logged In",
+    user: existingUser.toObject({ getters: true }),
+  });
 };
 
 exports.getUsers = getUsers;
