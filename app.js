@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -13,6 +14,8 @@ const app = express();
 app.use(cors());
 
 app.use(bodyParser.json());
+
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 app.use("/api/locations", locationsRoutes);
 app.use("/api/users", usersRoutes);
@@ -45,3 +48,5 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
+
+// app.use("/static", express.static(path.join(__dirname, "public")));
