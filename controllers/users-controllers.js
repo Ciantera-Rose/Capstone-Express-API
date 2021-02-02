@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
 
 const HttpError = require("../models/http-error");
 const UserModel = require("../models/user-model");
@@ -14,7 +15,7 @@ const getUsers = async (req, res, next) => {
 
   res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
-// link file to user in db, create real img url, errors
+
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -37,12 +38,22 @@ const signup = async (req, res, next) => {
     );
     return next(error);
   }
+  let hashPassword;
+  try {
+    hashPassword = await bcrypt.hash(password, 12);
+  } catch (err) {
+    const error = new HttpError(
+      "Could not create user, please try again.",
+      500
+    );
+    return next(error);
+  }
 
   const newUser = new UserModel({
     name,
     email,
     image: req.file.path,
-    password,
+    password: hashPassword,
     locations: [],
   });
   // TODO: Store password encrypted later
