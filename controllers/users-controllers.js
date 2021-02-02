@@ -14,7 +14,7 @@ const getUsers = async (req, res, next) => {
 
   res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
-
+// link file to user in db, create real img url, errors
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -41,8 +41,7 @@ const signup = async (req, res, next) => {
   const newUser = new UserModel({
     name,
     email,
-    image:
-      "https://images.squarespace-cdn.com/content/v1/597a8b3920099e0bff668154/1538683215516-2O43UPWH0BHWLTGPF6DE/ke17ZwdGBToddI8pDm48kEZk6F5PbQiC1r1IZ2IoUeR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UfvbNRGeuxQFwQ8dTRP7_IjByFLq5tUM4qN8xXPNmdulg0wU7-gbCzcJVB_xdsPuSg/image-asset.jpeg",
+    image: req.file.path,
     password,
     locations: [],
   });
