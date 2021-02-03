@@ -79,7 +79,7 @@ const newLocation = async (req, res, next) => {
 
   let user;
   try {
-    user = await UserModel.findById(userId);
+    user = await UserModel.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError(
       "Failed to create new location, please try again.",
