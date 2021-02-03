@@ -3,7 +3,7 @@ const { check } = require("express-validator");
 
 const locationsControllers = require("../controllers/locations-controllers");
 const fileUpload = require("../middleware/file-upload");
-const checkAuth = require("../middleware/auth-check");
+const authCheck = require("../middleware/auth-check");
 
 const router = Router();
 
@@ -11,7 +11,7 @@ router.get("/:lid", locationsControllers.getLocationById);
 
 router.get("/user/:uid", locationsControllers.getLocationsByUserId);
 
-router.use(checkAuth);
+router.use(authCheck);
 
 router.post(
   "/",

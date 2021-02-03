@@ -133,6 +133,13 @@ const updateLocation = async (req, res, next) => {
     );
     return next(error);
   }
+  if (location.userId !== req.userData.userId) {
+    const error = new HttpError(
+      "You are not authorized to edit this location",
+      401
+    );
+    return next(error);
+  }
 
   location.title = title;
   location.description = description;
