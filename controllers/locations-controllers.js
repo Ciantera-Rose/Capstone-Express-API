@@ -175,6 +175,14 @@ const deleteLocation = async (req, res, next) => {
     return next(error);
   }
 
+  if (location.userId.id !== req.userData.userId) {
+    const error = new HttpError(
+      "You are not authorized to delete this location",
+      401
+    );
+    return next(error);
+  }
+
   const imagePath = location.image;
 
   try {
