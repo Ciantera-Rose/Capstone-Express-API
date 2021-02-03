@@ -59,7 +59,7 @@ const newLocation = async (req, res, next) => {
     return next(new HttpError("Invalid input, please check you data.", 422));
   }
 
-  const { title, description, address, userId } = req.body;
+  const { title, description, address } = req.body;
 
   let coordinates;
   try {
@@ -74,7 +74,7 @@ const newLocation = async (req, res, next) => {
     address,
     location: coordinates,
     image: req.file.path,
-    userId,
+    userId: req.userData.userId,
   });
 
   let user;
