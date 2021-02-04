@@ -59,7 +59,7 @@ const newLocation = async (req, res, next) => {
     return next(new HttpError("Invalid input, please check you data.", 422));
   }
 
-  const { title, description, address } = req.body;
+  const { title, description, address, userId } = req.body;
 
   let coordinates;
   try {
@@ -74,12 +74,12 @@ const newLocation = async (req, res, next) => {
     address,
     location: coordinates,
     image: req.file.path,
-    userId: req.userData.userId,
+    userId,
   });
 
   let user;
   try {
-    user = await UserModel.findById(req.userData.userId);
+    user = await UserModel.findById(userId);
   } catch (err) {
     const error = new HttpError(
       "Failed to create new location, please try again.",
